@@ -1,0 +1,7 @@
+# Ignore common C/C++ build artifacts
+*.o      # Object files
+*.gch    # Precompiled headers
+*.out    # Common executable name
+*.exe    # Windows executables
+*.bin    # General binary files
+bin/
