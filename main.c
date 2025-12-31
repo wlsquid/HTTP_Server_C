@@ -9,27 +9,30 @@
 #define PORT "8080"   // port we're listening on
 #define BACKLOG 10 
 
-int openSocketAndBind(struct addrinfo *serverinfo, int sockey) {
+void openSocketAndBind(struct addrinfo *serverinfo, int* sockey) {
     // Loop through all the addr info results bind to first valid one
+    if ((int *)sockey == NULL || (void*)serverinfo == NULL) { perror("socket or addrinfo was NULL"); exit(1); }
     struct addrinfo *si;
     int yes = 1;
+    printf("sockey %d\n", *sockey);
+    printf("sockey %p\n", sockey);
     for (si = serverinfo; si != NULL; si = si->ai_next) {
 	    // if it the socket returns an error
-	    if (sockey = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol) = -1) {
+	    if ((*sockey = socket(si->ai_family, si->ai_socktype, si->ai_protocol)) == -1) {
 		perror("server: socket");
 		continue;
 	    }
 	    // clear the port if needed catch failure
-	    if (setsockopt(sockey, SOL_SOCKET, SO_RESUSEADDR, &yes, sizeof(int)) == -1) { 
+	    if (setsockopt(*sockey, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
 		    // failed
 		    perror("setsockopt");
 		    exit (1);
 	    }
 	
 	    // If all is working so far bind the socket to Port
-	    if (bind(sockey, si->ai_addr, si->ai_addrlen) == -1) { 
+	    if (bind(*sockey, si->ai_addr, si->ai_addrlen) == -1) { 
 		    // if failed close the socket and exit
-		close(sockey);
+		close(*sockey);
 		perror("server: bind");
 		continue;
 	    }
@@ -37,7 +40,7 @@ int openSocketAndBind(struct addrinfo *serverinfo, int sockey) {
 	    break;
     }
 
-    return sockey;
+//    return *sockey;
 }
 
 int main() {
@@ -57,7 +60,8 @@ int main() {
         exit(1);
     }
     // socket (this should be a loop)
-    sockey = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol);
+    //sockey = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol);
+    openSocketAndBind(serverinfo, &sockey);
     // Bind to a port
     bind(sockey, serverinfo->ai_addr, serverinfo->ai_addrlen);
     // free the addrinfo
