@@ -4,4 +4,5 @@
 *.out    # Common executable name
 *.exe    # Windows executables
 *.bin    # General binary files
+*.swp
 bin/

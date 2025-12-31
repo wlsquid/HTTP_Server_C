@@ -9,6 +9,37 @@
 #define PORT "8080"   // port we're listening on
 #define BACKLOG 10 
 
+int openSocketAndBind(struct addrinfo *serverinfo, int sockey) {
+    // Loop through all the addr info results bind to first valid one
+    struct addrinfo *si;
+    int yes = 1;
+    for (si = serverinfo; si != NULL; si = si->ai_next) {
+	    // if it the socket returns an error
+	    if (sockey = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol) = -1) {
+		perror("server: socket");
+		continue;
+	    }
+	    // clear the port if needed catch failure
+	    if (setsockopt(sockey, SOL_SOCKET, SO_RESUSEADDR, &yes, sizeof(int)) == -1) { 
+		    // failed
+		    perror("setsockopt");
+		    exit (1);
+	    }
+	
+	    // If all is working so far bind the socket to Port
+	    if (bind(sockey, si->ai_addr, si->ai_addrlen) == -1) { 
+		    // if failed close the socket and exit
+		close(sockey);
+		perror("server: bind");
+		continue;
+	    }
+
+	    break;
+    }
+
+    return sockey;
+}
+
 int main() {
     int status, sockey,new_fd;
     struct sockaddr_storage their_addr;
@@ -44,6 +75,8 @@ int main() {
         // accept is failed if -1
         if (new_fd >= 0) {
             // do something
+	    // 1. Read request and verify it is in a valid format
+	    // 2. Construct a valid response in a valid format
             printf("received a thing");
             char *msg = "Beej was here!";
             int len, bytes_sent;
