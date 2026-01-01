@@ -6,4 +6,5 @@ HTTP server built in C (WIP).
 - [ ] figure out routing
 - [ ] Read port from configuration file
 - [ ] add test libraries 
+- [ ] Invert if statements
 

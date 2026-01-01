@@ -43,6 +43,16 @@ void openSocketAndBind(struct addrinfo *serverinfo, int* sockey) {
 //    return *sockey;
 }
 
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
+
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
 int main() {
     int status, sockey,new_fd;
     struct sockaddr_storage their_addr;
@@ -73,15 +83,51 @@ int main() {
     // accept
     // Will be like reading a file
     // Need a while loop in here for listening
+    char s[INET6_ADDRSTRLEN];
     while (1) {
+	    printf("whileloop started\n");
         addr_size = sizeof their_addr;
         new_fd = accept(sockey, (struct sockaddr*)&their_addr, &addr_size);
         // accept is failed if -1
         if (new_fd >= 0) {
+	    inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof(s));
+	    printf("server: got connection from %s\n", s);
             // do something
+	    // -1. Wil need methods for validating input size (make sure people are sending 7 gigs of data randomly)
+	    // 0. request logging of some sort
 	    // 1. Read request and verify it is in a valid format
+	    // need to make x malloc
+	    // create a buffer for the file
+	    // MOVE THE BELOW
+	    int MAX_REQUEST_SIZE = 1024;
+	    char requestBuf[MAX_REQUEST_SIZE];
+//	    requestBuf = malloc(2);
+	    int received;
+
+	    if (NULL == requestBuf) {
+		    printf("request failed\n");
+	    }
+		
+	    received = recv(new_fd, requestBuf, MAX_REQUEST_SIZE, 0);
+	    if (-1 == received) {
+		printf("Something went wrong during request\n");
+	    }
+
+	    if (0 == received) {
+		
+		printf("client closed connection\n");
+	    }
+
+	    if (0 < received) {
+
+	    // add null terminator to buffer
+	    requestBuf[received] = "\0";
+	    printf("received: '%s'\n", requestBuf);
+	    }
+//	    free(requestBuf);
+
 	    // 2. Construct a valid response in a valid format
-            printf("received a thing");
+            printf("received a thing\n");
             char *msg = "Beej was here!";
             int len, bytes_sent;
             len = strlen(msg);
